@@ -1,22 +1,42 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <nav class="navbar bg-body-tertiary">
-  <div class="container-fluid">
+    <nav id="nav" class="navbar navbar-expand-lg navbar-light">
     <a class="navbar-brand" href="#">
-      <img src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
-      Bootstrap
+      <img src="@/assets/Logo kuce za odmor.png" alt="Logo" 
+       height="40"
+       class="d-inline-block align-text-top">
     </a>
-  </div>
-</nav>
-    </div>
-  </div>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/login">Log in</router-link> |
-    <router-link to="/signup">Sign up</router-link>
-  </nav>
+    <button
+    class="navbar-toggler"
+    type="button"
+    data-toggle="collapse"
+    data-target="#navbarToggler"
+    aria-controls="navbarToggler"
+    aria-expanded="false"
+    aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+    <div class="collapse navbar-collapse" id="navbarToggler">
+      <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+        <li class="nav-item">
+          <router-link to="/" class="nav-link"> Home</router-link> 
+        </li>
+        <li class="nav-item">
+          <router-link to="/login" class="nav-link">Login</router-link>
+        </li>
+        <li class="nav-item">
+           <router-link to="/signup" class="nav-link">Signup</router-link>
+        </li>
+      </ul>
+      <form class="d-flex" role="search">
+      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+    </form>
+    </div>   
+  </nav> 
+  <div class="container">
   <router-view/>
+</div>
+  </div>
 </template>
 
 <style lang="scss">
@@ -30,7 +50,7 @@
 
 nav {
   padding: 30px;
-
+  background-color: #c7f97c !important;
   a {
     font-weight: bold;
     color: #2c3e50;
