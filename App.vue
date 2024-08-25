@@ -29,15 +29,30 @@
         </li>
       </ul>
       <form class="d-flex" role="search">
-      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+      <input v-model="store.searchTerm" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
     </form>
     </div>   
   </nav> 
+
+
   <div class="container">
   <router-view/>
 </div>
   </div>
 </template>
+
+<script> 
+import store from "@/store"
+export default{
+  name:"app",
+  data(){
+    return{
+      store
+    }
+  }
+};
+
+</script>
 
 <style lang="scss">
 #app {
