@@ -1,5 +1,5 @@
 <template>
-  <div class="card-body p-0" style="width: 18rem;">
+  <div class="card h-100">
   <img :src="info.url" class="card-img-top" alt="slika">
   <div class="card-body">
    <p class="card-text">{{ info.title }}</p>
@@ -18,4 +18,21 @@ export default {
 }
 </script>
 
-
+<style scoped>
+.card {
+  max-width: 250px; 
+  flex: 1 0 auto; 
+}
+.card-item{
+  margin: 0 16px;
+}
+.card-img-top {
+  width: 100%;
+  height: auto; 
+}
+.card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+</style>

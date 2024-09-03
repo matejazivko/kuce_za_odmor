@@ -1,14 +1,9 @@
 <template>
  <div class="row">
-<div class="col-2">
- 
+<div class="col-12">
+  <div class="card-container">
+  <house-card v-for="card in filteredCards" :key="card.url" :info="card" class="card-item"/>
 </div>
-<div class="col-8">
-  <house-card v-for="card in filteredCards" :key="card.url" :info="card"/>
-  
-</div>
-<div class="col-2">
-
 </div>
 </div>
   </template>
@@ -43,3 +38,17 @@ export default {
   },
 };
 </script>
+<style scoped>
+.card-container {
+  display: flex;
+  flex-wrap: nowrap; 
+  overflow-x: auto; 
+  gap: 16px; 
+  
+}
+
+.card-item {
+  flex: 0 0 auto;
+  max-width: 250px; 
+}
+</style>

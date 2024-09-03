@@ -1,57 +1,76 @@
 <template>
-  <div id="app">
-    <nav id="nav" class="navbar navbar-expand-lg navbar-light">
-    <a class="navbar-brand" href="#">
+<div id="app">
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container-fluid">
+        <div class="container-fluid navbar-grid">
+      <div class="logo-search">
+    <div class="navbar-brand">
       <img src="@/assets/Logo kuce za odmor.png" alt="Logo" 
        height="40"
        class="d-inline-block align-text-top">
-    </a>
-    <button
-    class="navbar-toggler"
-    type="button"
-    data-toggle="collapse"
-    data-target="#navbarToggler"
-    aria-controls="navbarToggler"
-    aria-expanded="false"
-    aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-    <div class="collapse navbar-collapse" id="navbarToggler">
-      <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-        <li class="nav-item">
-          <router-link to="/" class="nav-link"> Home</router-link> 
-        </li>
-        <li class="nav-item">
-          <router-link to="/login" class="nav-link">Login</router-link>
-        </li>
-        <li class="nav-item">
-           <router-link to="/signup" class="nav-link">Signup</router-link>
-        </li>
-      </ul>
-      <form class="d-flex" role="search">
+    
+  </div>
+    <form class="d-flex" role="search">
       <input v-model="store.searchTerm" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
     </form>
-    </div>   
+  </div>
+
+
+  <div class="navbar-links">
+      <ul class="  navbar-nav d-flex justify-content-center mb-0 ">
+        <li class="nav-item">
+          <router-link to="/" class="nav-link btn mx-4" style="background-color:#71CFF2;" > Home</router-link> 
+        </li>
+        <li class="nav-item">
+          <router-link to="/login" class="nav-link btn mx-4" style="background-color:#71CFF2;" >Login</router-link>
+        </li>
+        <li class="nav-item">
+           <router-link to="/signup" class="nav-link btn mx-4" style="background-color:#71CFF2;">Signup</router-link>
+        </li>
+      </ul>
+    </div>
+  </div>  
+</div> 
   </nav> 
-
-
   <div class="container">
   <router-view/>
 </div>
   </div>
+
 </template>
 
 <script> 
-import store from "@/store"
-export default{
-  name:"app",
-  data(){
-    return{
-      store
-    }
-  }
-};
+import store from "@/store";
+import router from "@/router";
+import auth  from "@/firebase"; // Ispravno importovanje auth-a
 
+export default {
+  name: "App",
+
+  data() {
+    return {
+      store, // Vuex store je dostupan u komponenti
+    };
+  },
+
+  created() {
+    
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        
+        console.log('Korisnik prijavljen', user.email);
+        store.currentUser = user.email;
+      } else {
+        
+        console.log('Korisnik nije prijavljen');
+        store.currentUser = null;
+        if (router.currentRoute.name !== 'login') {
+          router.push({ name: 'login' });
+        }
+      }
+    });
+  },
+};
 </script>
 
 <style lang="scss">
@@ -66,6 +85,25 @@ export default{
 nav {
   padding: 30px;
   background-color: #c7f97c !important;
+.navbar-nav{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.navbar-grid{
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 10px;
+}
+.logo-search{
+  display:flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.navbar-nav-container{
+  margin-top:10px;
+}
+ 
   a {
     font-weight: bold;
     color: #2c3e50;
