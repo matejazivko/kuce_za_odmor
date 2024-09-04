@@ -21,7 +21,7 @@
   </div>
   <button type="submit" class="btn btn-primary">Submit</button>
   </form>
-  <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+  
   </div>
   <div class="col-sm"></div>
   </div>
@@ -32,32 +32,28 @@
 
 <script>
 
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import {auth} from "@/firebase";
-
+import {auth, signInWithEmailAndPassword} from '@/firebase';
 
 export default {
   data() {
     return {
       email: '',
-      password: '',
-      errorMessage: '',
+      password: ''
+      
+      
     };
   },
   methods: {
-    async login() {
-      try {
-        
-        const userCredential = await signInWithEmailAndPassword(auth, this.email, this.password);
-        console.log('Uspješna prijava', userCredential.user);
-        this.errorMessage = '';
-      
-      } catch (error) {
-        this.errorMessage = 'Neuspješna prijava: ' + error.message;
+    login() {
+       signInWithEmailAndPassword(auth, this.email, this.password)
+        .then((userCredential) => {
+          console.log('Uspješna prijava', userCredential);
+          this.$router.replace({name:'home'});
+        })
+        .catch(function(error){
+          console.error('Greška prilikom prijave', error.message);
+        });
       }
-    },
-  },
-};
+    }
+  };
 </script>
-
-  

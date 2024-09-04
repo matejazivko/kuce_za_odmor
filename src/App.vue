@@ -21,11 +21,14 @@
         <li class="nav-item">
           <router-link to="/" class="nav-link btn mx-4" style="background-color:#71CFF2;" > Home</router-link> 
         </li>
-        <li class="nav-item">
+        <li v-if = "!store.currentUser"  class="nav-item">
           <router-link to="/login" class="nav-link btn mx-4" style="background-color:#71CFF2;" >Login</router-link>
         </li>
-        <li class="nav-item">
+        <li v-if = "!store.currentUser" class="nav-item">
            <router-link to="/signup" class="nav-link btn mx-4" style="background-color:#71CFF2;">Signup</router-link>
+        </li>
+        <li v-if = "store.currentUser" class="nav-item">
+           <a href="#" v-on:click.prevent="logout" class="nav-link btn mx-4" style="background-color:#71CFF2;">Logout</a>
         </li>
       </ul>
     </div>
@@ -41,36 +44,54 @@
 
 <script> 
 import store from "@/store";
-import router from "@/router";
-import auth  from "@/firebase"; // Ispravno importovanje auth-a
+import {auth, onAuthStateChanged, signOut} from '@/firebase';
+import router from '@/router';
+
 
 export default {
   name: "App",
-
-  data() {
-    return {
-      store, // Vuex store je dostupan u komponenti
+  data(){
+   return {
+      store, 
+      currentUser: null,
+      searchTerm: ''
     };
   },
-
-  created() {
-    
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        
-        console.log('Korisnik prijavljen', user.email);
-        store.currentUser = user.email;
-      } else {
-        
-        console.log('Korisnik nije prijavljen');
+  methods:{
+    logout() {
+      signOut(auth).then(() => {
+        console.log('Korisnik odjavljen');
+        this.currentUser = null;
         store.currentUser = null;
-        if (router.currentRoute.name !== 'login') {
-          router.push({ name: 'login' });
-        }
-      }
-    });
+        this.$router.push({ name: 'home' });
+      }).catch((error) => {
+        console.error('Greška prilikom odjave: ', error.message);
+      });
+    }
   },
+  created(){
+  onAuthStateChanged(auth, (user) => {
+  if (user) {
+  console.log('*** User', user.email);
+  this.currentUser = user;
+  store.currentUser = user;
+  } else {
+  console.log('*** No user');
+  this.currentUser = null;
+  store.currentUser = null;
+
+if(this.$route.meta && this.$route.meta.requiresAuth){
+  this.$router.push({name: 'login'});
+}
+}
+});
+}
+  
 };
+
+ 
+
+   
 </script>
 
 <style lang="scss">
