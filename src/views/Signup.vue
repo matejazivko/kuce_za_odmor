@@ -30,7 +30,7 @@
     <input type="password" v-model= "passwordConfirmation" class="form-control"
     id="exampleInputPasswordConfirmation" placeholder="Password" />
     </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button style="background-color:#71CFF2; color: black" type="submit" class="btn btn-primary">Create account</button>
     </form>
     <p v-if="successMessage" class="text-success">{{ successMessage }}</p>
     <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>

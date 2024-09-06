@@ -19,16 +19,16 @@
   <div class="navbar-links">
       <ul class="  navbar-nav d-flex justify-content-center mb-0 ">
         <li class="nav-item">
-          <router-link to="/" class="nav-link btn mx-4" style="background-color:#71CFF2;" > Home</router-link> 
+          <router-link to="/" class="nav-link btn mx-4" style="background-color:#71CFF2; color: black" > Home</router-link> 
         </li>
         <li v-if = "!store.currentUser"  class="nav-item">
-          <router-link to="/login" class="nav-link btn mx-4" style="background-color:#71CFF2;" >Login</router-link>
+          <router-link to="/login" class="nav-link btn mx-4" style="background-color:#71CFF2; color: black" >Login</router-link>
         </li>
         <li v-if = "!store.currentUser" class="nav-item">
-           <router-link to="/signup" class="nav-link btn mx-4" style="background-color:#71CFF2;">Signup</router-link>
+           <router-link to="/signup" class="nav-link btn mx-4" style="background-color:#71CFF2; color: black">Signup</router-link>
         </li>
-        <li v-if = "store.currentUser" class="nav-item">
-           <a href="#" v-on:click.prevent="logout" class="nav-link btn mx-4" style="background-color:#71CFF2;">Logout</a>
+        <li v-if = "currentUser" class="nav-item">
+           <a href="#" v-on:click.prevent="logout" class="nav-link btn mx-4" style="background-color:#71CFF2; color: black">Logout</a>
         </li>
       </ul>
     </div>
@@ -62,9 +62,10 @@ export default {
       signOut(auth).then(() => {
         console.log('Korisnik odjavljen');
         this.currentUser = null;
-        store.currentUser = null;
         this.$router.push({ name: 'home' });
-      }).catch((error) => {
+       
+      })
+      .catch((error) => {
         console.error('Greška prilikom odjave: ', error.message);
       });
     }
@@ -74,19 +75,14 @@ export default {
   if (user) {
   console.log('*** User', user.email);
   this.currentUser = user;
-  store.currentUser = user;
   } else {
   console.log('*** No user');
   this.currentUser = null;
-  store.currentUser = null;
 
-if(this.$route.meta && this.$route.meta.requiresAuth){
-  this.$router.push({name: 'login'});
+
 }
+})
 }
-});
-}
-  
 };
 
  

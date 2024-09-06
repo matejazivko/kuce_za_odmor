@@ -3,8 +3,8 @@
   <img :src="info.url" class="card-img-top" alt="slika">
   <div class="card-body">
    <p class="card-text">{{ info.title }}</p>
-    <a href="#" class="btn btn-primary">{{ info.komentar }}</a><br><br>
-    <a href="#" class="btn btn-primary">{{ info.kontakt }}</a>
+    <a style="background-color:#71CFF2; color: black" href="#" class="btn btn-primary">{{ info.komentar }}</a><br>
+    <a style="background-color:#71CFF2; color: black" href="#" class="btn btn-primary">{{ info.kontakt }}</a>
   </div>
 </div>
   
@@ -35,4 +35,7 @@ export default {
   flex-direction: column;
   justify-content: space-between;
 }
+
+
+
 </style>
