@@ -14,12 +14,12 @@ id="imageUrl"
 />
 </div>
 <div class="form-group">
-<label for="imageDescription">Description</label>
+<label for="imageDescription">Title</label>
 <input
-v-model="newImageDescription"
+v-model="newImageTitle"
 type="text"
 class="form-control ml-2"
-placeholder="Enter the image description"
+placeholder="Enter the image Title"
 id="imageDescription"
 />
 </div>
@@ -51,28 +51,44 @@ export default {
       cards: [],
       store,
       newImageUrl: "",
-      newImageDescription:"",
+      newImageTitle:"",
     }; 
   },
   mounted() {
 this.getPosts();
 },
   methods:{
+    getPosts(){
+      console.log('Firebase dohvat');
+      db.collection("posts").get()
+      .then((query)=>{
+        this.card=[];
+        query.forEach((doc)=>{
+          const data = doc.data();
+          this.cards.push({
+            url: data.url,
+            title: data.title,
+            
+          });
+      });
+      });
+    },
     postNewImage(){
       const imageUrl = this.newImageUrl;
-      const imageDescription = this.newImageDescription;
+      const imageTitle = this.newImageTitle;
 
       db.collection('posts').add({
         url: imageUrl,
-        desc: imageDescription,
+        title: imageTitle,
         email: store.currentUser,
       })
-      .then (()=> {
+      .then ((doc)=> {
         console.log('Spremljeno'.doc);
-        this.newImageDescription = "";
+        this.newImageTitle = "";
         this.newImageUrl = "";
+        this.getPosts();
       })
-      .catch(()=>{
+      .catch((e)=>{
         console.error(e);
       });
     }
