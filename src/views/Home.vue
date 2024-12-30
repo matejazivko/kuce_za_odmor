@@ -2,31 +2,17 @@
  <div class="row">
 <div class="col-12">
   <div class="card-container">
-    <form @submit.prevent="postNewImage" class="form-inline mb-5">
-<div class="form-group">
-<label for="imageUrl">Image URL</label>
-<input
-v-model="newImageUrl"
-type="text"
-class="form-control ml-2"
-placeholder="Enter the image URL"
-id="imageUrl"
-/>
-</div>
-<div class="form-group">
-<label for="imageDescription">Title</label>
-<input
-v-model="newImageTitle"
-type="text"
-class="form-control ml-2"
-placeholder="Enter the image Title"
-id="imageDescription"
-/>
-</div>
-<button type="submit" class="btn btn-primary ml-2">Post
-image</button>
+    <button @click="toggleForm" class="btn btn-primary mb-3">Dodaj kuću za odmor</button>
+    <form v-if ="showForm" @submit.prevent="postNewImage" class="form-inline mb-5">
+    <img v-if="imageSrc" :src="imageUrl" alt="Slika kuće" class="card-image"/>
+    <Cropper v-model="myCroppa" :src="imageSrc" :width="400" :height="400"></Cropper>
+    <input type="file" @change="onFileChange"/>
+    <input v-model="newImageTitle" placeholder="Dodaj opis"/>
+    <button type="submit" class="btn btn-primary ml-2">Dodaj post</button>
 </form>
+<div v-if="filteredCards.length > 0">
   <house-card v-for="card in filteredCards" :key="card.url" :info="card" class="card-item"/>
+</div>
   
 </div>
 </div>
@@ -35,9 +21,14 @@ image</button>
 
 <script>
 // @ is an alias to /src
+import {Cropper} from 'vue-advanced-cropper';
+import 'vue-advanced-cropper/dist/style.css';
 import HouseCard from '@/components/HouseCard.vue';
 import store from '@/store.js';
-import {db} from '@/firebase';
+import {db, storage} from '@/firebase';
+import {addDoc, collection, getDocs, getFirestore} from 'firebase/firestore';
+
+
 
 //cards = [
   //{url: "https://picsum.photos/200/300", title: "Kuća za odmor Una okružena zelenilom pružit će vam idealan odmor. Kuća ima bazen, terasu, tri spavaće sobe, kuhinju i kupaonicu. Kapacitet 6 osoba.", komentar: "Komentari", kontakt: "Kontakt"},
@@ -46,77 +37,106 @@ import {db} from '@/firebase';
 //]
 export default {
   name: 'Home',
+  components: {HouseCard, Cropper},
   data: function() {
     return{
-      cards: [],
+      filteredCards: [],
       store,
-      newImageUrl: "",
-      newImageTitle:"",
+      newImage: '',
+      newImageTitle:'',
+      myCroppa: null,
+      imageSrc:"",
+      showForm: false
     }; 
   },
-  mounted() {
-this.getPosts();
-},
+ mounted(){
+  this.getPosts();
+ },
   methods:{
-    getPosts(){
-      console.log('Firebase dohvat');
-      db.collection("posts").get()
-      .then((query)=>{
-        this.card=[];
-        query.forEach((doc)=>{
+    
+    toggleForm(){
+      this.showForm = !this.showForm;
+    },
+    async getPosts(){
+      try{
+      const querySnapshot = await getDocs (collection(db,"posts"));
+        this.filteredCards=[];
+        querySnapshot.forEach((doc)=>{
           const data = doc.data();
-          this.cards.push({
-            url: data.url,
+        if (data.imageUrl && data.title) {
+          this.filteredCards.push({
+            url: data.imageUrl,
             title: data.title,
+            komentar: data.komentar,
+            kontakt: data.kontakt,
             
           });
+        }
       });
-      });
-    },
-    postNewImage(){
-      const imageUrl = this.newImageUrl;
-      const imageTitle = this.newImageTitle;
-
-      db.collection('posts').add({
-        url: imageUrl,
-        title: imageTitle,
-        email: store.currentUser,
-      })
-      .then ((doc)=> {
-        console.log('Spremljeno'.doc);
-        this.newImageTitle = "";
-        this.newImageUrl = "";
-        this.getPosts();
-      })
-      .catch((e)=>{
+      }
+    catch(e){
         console.error(e);
-      });
     }
-  },
-  computed:{
-    filteredCards(){
-      let termin = this.store.searchTerm;
-      return this.cards.filter(card => card.title.includes(termin));
+  
+ },
+  
+    onFileChange(event){
+      const file = event.target.files[0];
+      if(file && file.type.startsWith('image/')){
+        this.imageSrc = URL.createObjectURL(file);
+      } else {
+        alert ("Odaberite sliku!");
+      }
       
     },
-  },
-  components: {
-    HouseCard
+    postNewImage(){
+      if(this.imageSrc && this.newImageTitle){
+        const newCard={
+          title: this.newImageTitle,
+          imageUrl: this.imageSrc,
+        };
+        addDoc(collection(db,"posts"), newCard).then(() => {
+        this.filteredCards.push({
+        title: newCard.title,
+        url: newCard.imageUrl,
+        komentar:"",
+        kontakt: "",
+        });
+        this.newImageTitle="";
+        this.showForm = false;
+        this.imageSrc=""; 
+      }).catch ((error) =>{
+        console.error("Greška u dodavanju slike", error);
+      });
+    } else {
+        alert ("Unesite sliku i opis kuće!");
+      }
+    },
   },
 };
+  
+
+
 </script>
 <style scoped>
-.card-container {
+.card {
   display: flex;
-  flex-wrap: nowrap; 
-  overflow-x: auto; 
+  flex-wrap: wrap; 
+  justify-content: flex-start; 
   gap: 16px; 
+  width: 100%;
   
 }
 
 .card-item {
-  flex: 0 0 auto;
+  flex: 0 1 250px;
   max-width: 250px; 
+  margin-bottom: 16px;
 }
 
+@media (max-width: 768px){
+  .card-item{
+    flex: 0 0 100%;
+  }
+}
 </style>
