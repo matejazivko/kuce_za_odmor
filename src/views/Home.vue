@@ -83,7 +83,11 @@ export default {
     onFileChange(event){
       const file = event.target.files[0];
       if(file && file.type.startsWith('image/')){
-        this.imageSrc = URL.createObjectURL(file);
+        const reader = new FileReader();
+        reader.onload = (e)=>{
+          this.imageSrc = e.target.result;
+        };
+        reader.readAsDataURL(file);
       } else {
         alert ("Odaberite sliku!");
       }
