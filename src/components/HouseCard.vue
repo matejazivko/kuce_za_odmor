@@ -1,13 +1,15 @@
 <template>
   <div class="card h-100">
-  <img :src="info.url" class="card-img-top" alt="slika">
+  
   <div class="card-body">
+    <img :src="info.url" class="card-img-top" alt="slika">
    <p class="card-text">{{ info.title }}</p>
+   <div class="btn-container">
     <router-link to= "/komentar" style="background-color:#71CFF2; color: black" href="#" class="btn btn-primary">Komentar{{ info.komentar }}</router-link><br>
     <router-link to = "/kontakt" style="background-color:#71CFF2; color: black" href="#" class="btn btn-primary">Kontakt{{ info.kontakt }}</router-link>
   </div>
 </div>
-  
+</div>  
 </template>
 
 <script>
@@ -24,30 +26,44 @@ export default {
 </script>
 
 <style scoped>
-.card-container {
+.card {
  display: flex;
  flex-wrap: wrap;
- gap:16px;
- justify-content: flex-start;
+ flex-direction: column;
+ box-shadow: 0 2px 5px;
  width: 100%;
  
 }
 
 .card-item{
-  flex: 0 1 250px;
-  max-width: 250px;
-  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 60%;
+  max-width: 600px;
+  max-height: 630px;
+  margin-bottom: 20px;
+  
   
 }
 .card-img-top {
   width: 100%;
   height: auto; 
+  
+}
+.card-text {
+  margin-bottom: 15px;
 }
 .card-body {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  padding: 15px;
 }
+.btn-container{
+  display:flex;
+  flex-direction: column;
+  width: auto;
+ 
+ 
+}
+
 
 
 
