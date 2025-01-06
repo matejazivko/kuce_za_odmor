@@ -46,6 +46,7 @@
 import store from "@/store";
 import {auth, onAuthStateChanged, signOut} from '@/firebase';
 import router from '@/router';
+import komentar from '@/views/Komentar.vue';
 
 
 export default {
@@ -75,11 +76,11 @@ export default {
   if (user) {
   console.log('*** User', user.email);
   this.currentUser = user;
+  this.store.state.currentUser = user;
   } else {
   console.log('*** No user');
   this.currentUser = null;
-
-
+  this.store.state.currentUser = null;
 }
 })
 }

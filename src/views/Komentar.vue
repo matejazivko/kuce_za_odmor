@@ -5,10 +5,10 @@
             <div class="row">
                 <div class="col-sm"></div>
                 <div class="col-sm">
-                    <div v-if="selectedHouseName">
+                    <div v-if="selectedHouseName"><br>
                         <p>Odabrana kuća: {{ selectedHouseName }}</p>
                     </div>
-                    <form @submit.prevent="handleSubmit">
+                    <form v-if="isAuthenticated" @submit.prevent="addComment">
                         <div class="mb-3">
                             <label for="exampleFormControlTextarea1" class="form-label">Vaša poruka</label>
                             <textarea v-model="commentText" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
@@ -19,35 +19,32 @@
                      </form>
                     <p v-if="successMessage" class="text-success">{{ successMessage }}</p>
                     <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>
-                    <div v-for = "(house, index) in houses" :key="index"> 
-                        <div class="house-post" @click="selectedHouseForComment(house)"> 
-                            <h2>{{ house.name }}></h2>
-                        </div>
-                    </div>
+                    <div v-if="comments && comments.length > 0">
                     <div v-for="(comment, index) in comments" :key = "index" class="comment-box">
                             <p class="comment-text">{{ comment.text }}</p>
-                            <p>{{ comment.houseName }}</p>
-                            <button class="btn-izmjeni" @click = "selectionCommentToEdit(comment)">Izmjeni</button>
+                            <p>Kuća: {{ comment.houseName }}</p>
+                            <button class="btn-izmjeni" v-if="isAuthenticated && comment.userId === $store.state.userId" @click = "selectedCommentToEdit(comment)">Izmjeni</button>
                         </div>
                     </div>
                 </div>
+                  </div>
                 <div class="col-sm"></div>
             </div>
          </div>
+         
     
 </template>
     
 <script>
-import { auth} from '@/firebase'
+
 import {db} from '@/firebase';
-import { getDocs, addDoc, collection, updateDoc, doc } from 'firebase/firestore';
+import { getDocs, addDoc, collection, updateDoc, doc, onSnapshot } from 'firebase/firestore';
 
 export default{
-    name: "Komentari",
+    name: "komentar",
     data(){
         return{
             commentText: "",
-            comments: [],
             houses: [],
             selectedComment: null,
             selectedHouseName: "",
@@ -56,112 +53,131 @@ export default{
             errorMessage: "",
         };
     },
-    mounted(){
-        this.fetchComments();
-        this.fetchHouses();
+    computed: {
+        isAuthenticated(){
+            return this.$store.getters.isAuthenticated;
+        },
+        comments(){
+            return this.$store.state.comments || [];
+        }
+       
+    },
+     mounted(){
+        
+            const houseName = this.$route.query.houseName;
+            const houseId = this.$route.query.houseId;
+            console.log("Selected House Name:", this.selectedHouseName);
+        console.log("Selected House ID:", this.selectedHouseId);
+            if(this.selectedHouseName && this.selectedHouseId){
+            this.fetchComments();
+        }else{
+            console.error("Nedostaju podaci o kući");
+        }
+        
     },
 
     methods: {
-        async fetchHouses(){
-            try{
-                const querySnapshot = await getDocs(collection(db,"houses"));
-                this.houses = querySnapshot.docs.map(doc =>({
-                    id: doc.id,
-                    name: doc.data().name,
-                }));
-            } catch(error){
-                this.errorMessage = "Pogreška prilikom učitavanja kuće!";
-            }
-        },
         async fetchComments(){
-            try {
-                const querySnapshot = await getDocs(collection(db, "comments"));
-                this.comments = querySnapshot.docs.map(doc => {
-                    return{
-                        id: doc.id, text: doc.data().text, houseName: doc.data().houseName, houseId: doc.data().houseId,
-                    };
-                });
-            } catch (error){
-                console.error(error);
-                this.errorMessage = "Pogreška prilikom učitavanja komentara!";
-            }
-        },
-        selectedHouseForComment(house){
-            this.selectedHouseName = house.name;
-            this.selectedHouseId = house.id;
-            this.commentText = "";
-            this.selectedComment = null;
-        },
-        async addComment(){
-            if (!this.commentText || !this.selectedHouseName || !this.selectedHouseId){
-                this.errorMessage = "Komentar i kuća moraju biti ispravno odabrani!";
+            if (!this.selectedHouseId){
+                console.error("Id nije definiran");
                 return;
             }
-            try {
-                await addDoc(collection(db, "comments"), {
+            try{
+                const unsubscribe = onSnapshot (collection(db,"comments"), (querySnapshot)=>{
+                     let fetchedComments = querySnapshot.docs.map(doc =>({
+                    id: doc.id,
+                    text: doc.data().text,
+                    houseName: doc.data().houseName,
+                    houseId: doc.data().houseId, 
+                    userId: doc.data().userId,
+                    
+                }));
+                
+                console.log("Svi komentari iz Firestore-a:", fetchedComments);
+                fetchedComments = fetchedComments.filter(comment => 
+                    comment.houseId.trim().toLowerCase() === this.selectedHouseId.trim().toLowerCase());
+                
+                this.comments = [...fetchedComments];
+                console.log("Filtrirani komentari:", fetchedComments);
+            });
+                
+        
+            } catch(error){
+                this.errorMessage = "Pogreška prilikom učitavanja kuće!";
+                console.error(error);
+            }
+        },
+        async addComment(){
+            if(!this.commentText){
+                this.errorMessage = "Komentar ne može biti prazan";
+                return;
+            }
+            if(!this.selectedHouseName || !this.selectedHouseId){
+                this.errorMessage = "Nedostaju podaci";
+                console.error("House Id ili name nije definirano");
+            }
+            const newComment = {
                 text: this.commentText,
                 houseName: this.selectedHouseName,
                 houseId: this.selectedHouseId,
-            });
+                userId: this.$store.state.userId,
+            };
+            try{
+                await addDoc(collection(db,'comments'), newComment);
+                this.commentText ='';
+                this.successMessage = 'Komentar je uspješno dodan';
+                this.fetchComments();
+            } catch (error){
+                this.errorMessage = 'Greška u dodavanju komentara';
+                console.error(error);
+            }
+        },
             
-            this.successMessage = "Komentar je uspješno dodan!";
-            this.commentText = "";
-            this.selectedHouseName = "",
-            this.selectedHouseId = null;
-            this.fetchComments();
-        } catch (error){
-            this.errorMessage = "Pogreška prilikom dodavanja komentara!";
-        }
-    },
-    selectedCommentToEdit(comment){
-        this.selectedComment = comment;
-        this.commentText = comment.text;
-        this.selectedHouseName = comment.houseName;
-        this.selectedHouseId = comment.houseId;
+        selectedCommentToEdit(comment){
+            this.commentText = comment.text;
+            this.selectedHouseName = comment.houseName;
+            this.selectedHouseId = comment.houseId;
+            this.selectedComment = comment;
     },
         async editComment(){
-            if (!this.commentText){
-                this.errorMessage = "Komentar ne može biti prazan, dodajte komentar!";
-                return;
-            }
-            if (this.selectedComment){
-             try {
-                await updateDoc (doc(db, "comments", this.selectedComment.id), {
-                    text: this.commentText
-                });
-               
+            if (this.commentText && this.selectedComment){
+                if(this.selectedComment.userId !== this.$store.state.userId){
+                    this.errorMessage ="Niste autor ovog komentara, ne možete ga izmijeniti!";
+                    return;
+                }
+              try {
+                const commentRef = doc(db, 'comments', this.selectedComment.id);
+                await updateDoc (commentRef, {text: this.commentText});               
                 this.successMessage = "Komentar je uspješno izmijenjen!";
                 this.commentText =  "";
-                this.selectedComment = null;
-                this.selectedHouseName = null;
-                this.selectedHouseId = null;
                 this.fetchComments();
             } catch (error){
                 this.errorMessage = "Greška prilikom izmjene komentara!";
             }
         }
-        },
-        selectionCommentToEdit(comment){
-            this.selectedComment = comment;
-            this.commentText = comment.text;
-            this.selectedHouseName = comment.houseName;
-            this.selectedHouseId = comment.houseId;
-        },
-    
-    async deleteComment(){
-            if (!this.commentText){
-                this.errorMessage = "Nema komentara za brisanje!";
-                return;
-            }
-            this.successMessage = "Komentar je uspješno obrisan!";
-            this.commentText = "";
-        },
-        handleSubmit(){
-
-        }
     },
+    
+       
+        async deleteComment(){
+            if(this.selectedComment.userId !== this.$store.state.userId){
+                    this.errorMessage ="Niste autor ovog komentara, ne možete ga izbrisati!";
+                    return;
+            }
+            try {
+                const commentRef = doc(db, 'comments', this.selectedComment.id);
+                await deleteDoc(commentRef);
+                this.successMessage = "Komentar je uspješno obrisan!";
+                this.fetchComments();           
+             } catch (error){
+                this.errorMessage = 'Greška pri brisanju komenatara';
+                console.error(error);
+            }
+      }
+    }
+    };
+    
 
-};
+
 </script>
 <style scoped>
 .container{

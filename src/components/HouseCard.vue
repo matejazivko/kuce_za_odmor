@@ -3,9 +3,10 @@
   
   <div class="card-body">
     <img :src="info.url" class="card-img-top" alt="slika">
+    <p class="card-name">{{ info.houseName }}</p>
    <p class="card-text">{{ info.title }}</p>
    <div class="btn-container">
-    <router-link to= "/komentar" style="background-color:#71CFF2; color: black" href="#" class="btn btn-primary">Komentar{{ info.komentar }}</router-link><br>
+    <router-link :to= "{name: 'komentar', query:{houseName: info.houseName, houseId: info.houseId}}" style="background-color:#71CFF2; color: black" href="#" class="btnKomentar">Komentar{{ info.komentar }}</router-link><br>
     <router-link to = "/kontakt" style="background-color:#71CFF2; color: black" href="#" class="btn btn-primary">Kontakt{{ info.kontakt }}</router-link>
   </div>
 </div>
@@ -39,15 +40,15 @@ export default {
   display: flex;
   flex-direction: column;
   flex: 1 0 60%;
-  max-width: 600px;
-  max-height: 630px;
+  max-width: 800px;
+  max-height: 700px;
   margin-bottom: 20px;
   
   
 }
 .card-img-top {
-  width: 100%;
-  height: auto; 
+  width: 400px;
+  height: 400px; 
   
 }
 .card-text {
