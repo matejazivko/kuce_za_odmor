@@ -14,6 +14,7 @@
 
         <div v-if="filteredCards.length > 0">
           <house-card v-for="card in filteredCards" :key="card.houseId" :info="card" class="card-item" @click="goToKomentar(card)"/>
+          
         </div>
       </div>
     </div> 
@@ -130,6 +131,7 @@
            title: this.newImageTitle,
            imageUrl: this.imageSrc,
            houseName: this.newHouseName,
+           houseId: this.selectedHouseId,
           
          };
          
@@ -156,21 +158,17 @@
    },
    goToKomentar(house){
     console.log("House data:", house);
-    this.selectedHouseName = house.houseName;
-    this.selectedHouseId = house.houseId;
-    if (this.selectedHouseId){
-    this.$router.push({
+      this.$router.push({
       name:'komentar',
       query:{
         houseName: house.houseName,
         houseId: house.houseId
-      }
+      },
+   
     });
-   } else{
-    console.error("HouseId nije definiran");
-   }
   }
 }
+  
 };
    
  

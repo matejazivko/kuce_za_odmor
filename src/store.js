@@ -7,6 +7,7 @@ const store = createStore ({
     user: null,
     userId: null,
     houseId:null,
+    isAuthenticated: false,
    
 },
 
@@ -14,6 +15,7 @@ mutations: {
     setUser(state, user) {
       state.user = user;
       state.userId = user ? user.uid : null;
+      state.isAuthenticated = !!user;
     },
     logout(state) {
       state.user = null;
@@ -23,10 +25,12 @@ mutations: {
       state.user = state.user || {email: 'default@example.com'};
   } else {
     state.user = null;
+    state.userId = null;
     }
+    state.isAuthenticated = status;
   },
   setComments(state, comments){
-    state.comments = comments;
+     state.comments = comments;
   }
 },
 actions:{

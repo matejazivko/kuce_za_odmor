@@ -28,12 +28,14 @@ const routes = [
   {
     path: '/komentar',
     name: 'komentar',
-    component: () => import ('@/views/Komentar.vue')
+    component: () => import ('@/views/Komentar.vue'),
+    
   },
   {
     path: '/kontakt',
     name: 'kontakt',
-    component: Kontakt
+    component: Kontakt,
+   
   }
 ];
 
@@ -43,8 +45,8 @@ const router = createRouter({
 });
 
 router.beforeEach ((to, from, next) => {
-  const currentUser = store.currentUser;
-  if (to.meta.requiresAuth && !currentUser) {
+  const isAuthenticated = store.getters.isAuthenticated;
+  if (to.meta.requiresAuth && !isAuthenticated) {
     next({ name: 'login' });
   } else {
     next();

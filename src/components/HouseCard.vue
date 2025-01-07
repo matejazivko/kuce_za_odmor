@@ -7,23 +7,45 @@
    <p class="card-text">{{ info.title }}</p>
    <div class="btn-container">
     <router-link :to= "{name: 'komentar', query:{houseName: info.houseName, houseId: info.houseId}}" style="background-color:#71CFF2; color: black" href="#" class="btnKomentar">Komentar{{ info.komentar }}</router-link><br>
-    <router-link to = "/kontakt" style="background-color:#71CFF2; color: black" href="#" class="btn btn-primary">Kontakt{{ info.kontakt }}</router-link>
+   <button @click ="goToKontakt(info)" style="background-color:#71CFF2; color: black" class="btn btn-primary">Kontakt{{ info.kontakt }}</button>
+    
   </div>
 </div>
 </div>  
 </template>
 
 <script>
+import { info } from 'sass';
+
 export default {
+  name: 'HouseCard',
   props: {
     info:{
       type: Object,
       required: true,
     },
   },
-  name: 'HouseCard',
   
+  methods:{
+    goToKontakt(house){
+      if(!this.$store.getters.isAuthenticated){
+        this.$router.push({
+          name:'login'
+        });
+           
+    }else{ 
+      this.$router.push({
+        name: 'kontakt',
+        query: {
+          houseName: house.houseName,
+          houseId: house.houseId
+        }
+      });
+    }
+  }
 }
+};
+
 </script>
 
 <style scoped>

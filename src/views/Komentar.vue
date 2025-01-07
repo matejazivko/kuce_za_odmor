@@ -19,7 +19,7 @@
                      </form>
                     <p v-if="successMessage" class="text-success">{{ successMessage }}</p>
                     <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>
-                    <div v-if="comments && comments.length > 0">
+                    <div v-if="comments.length > 0">
                     <div v-for="(comment, index) in comments" :key = "index" class="comment-box">
                             <p class="comment-text">{{ comment.text }}</p>
                             <p>Kuća: {{ comment.houseName }}</p>
@@ -38,7 +38,7 @@
 <script>
 
 import {db} from '@/firebase';
-import { getDocs, addDoc, collection, updateDoc, doc, onSnapshot } from 'firebase/firestore';
+import { getDocs, addDoc, collection, updateDoc, doc, onSnapshot, deleteDoc } from 'firebase/firestore';
 
 export default{
     name: "komentar",
@@ -63,16 +63,17 @@ export default{
        
     },
      mounted(){
-        
-            const houseName = this.$route.query.houseName;
-            const houseId = this.$route.query.houseId;
-            console.log("Selected House Name:", this.selectedHouseName);
-        console.log("Selected House ID:", this.selectedHouseId);
-            if(this.selectedHouseName && this.selectedHouseId){
+        console.log("Selected House Name:", this.$route.query.houseName);
+        console.log("Selected House ID:", this.$route.query.houseId);
+            if(!this.$route.query.houseId){
+                console.error("Nedostaju podaci o kući");
+                alert ("Kuća nije pronađena");
+                return;
+            }
+            this.selectedHouseId = this.$route.query.houseId;
+            this.selectedHouseName = this.$route.query.houseName;
             this.fetchComments();
-        }else{
-            console.error("Nedostaju podaci o kući");
-        }
+       
         
     },
 
@@ -83,23 +84,31 @@ export default{
                 return;
             }
             try{
-                const unsubscribe = onSnapshot (collection(db,"comments"), (querySnapshot)=>{
+                const commentsRef = collection(db, 'comments');
+                const unsubscribe = onSnapshot (commentsRef, (querySnapshot)=> {
+              
                      let fetchedComments = querySnapshot.docs.map(doc =>({
                     id: doc.id,
                     text: doc.data().text,
                     houseName: doc.data().houseName,
-                    houseId: doc.data().houseId, 
+                    houseId: doc.data().houseId,
+                    firestoreHouseId: doc.data().firestoreHouseId || doc.id,
                     userId: doc.data().userId,
                     
                 }));
-                
-                console.log("Svi komentari iz Firestore-a:", fetchedComments);
+               
+                console.log("Dohvaćeni komentari:", fetchedComments);          
+               
                 fetchedComments = fetchedComments.filter(comment => 
-                    comment.houseId.trim().toLowerCase() === this.selectedHouseId.trim().toLowerCase());
                 
-                this.comments = [...fetchedComments];
+               String(comment.firestoreHouseId).trim() === String(this.selectedHouseId).trim());
+                
+
+                this.$store.commit('setComments', fetchedComments);
                 console.log("Filtrirani komentari:", fetchedComments);
             });
+
+               
                 
         
             } catch(error){
@@ -120,6 +129,7 @@ export default{
                 text: this.commentText,
                 houseName: this.selectedHouseName,
                 houseId: this.selectedHouseId,
+                firestoreHouseId: this.selectedHouseId,
                 userId: this.$store.state.userId,
             };
             try{
