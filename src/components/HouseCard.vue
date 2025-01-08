@@ -2,12 +2,13 @@
   <div class="card h-100">
   
   <div class="card-body">
-    <img :src="info.url" class="card-img-top" alt="slika">
+    <img :src="info.url" class="card-img-top" alt="slika" @click="$emit('goToSlike', info)"/>
     <p class="card-name">{{ info.houseName }}</p>
    <p class="card-text">{{ info.title }}</p>
    <div class="btn-container">
-    <router-link :to= "{name: 'komentar', query:{houseName: info.houseName, houseId: info.houseId}}" style="background-color:#71CFF2; color: black" href="#" class="btnKomentar">Komentar{{ info.komentar }}</router-link><br>
-   <button @click ="goToKontakt(info)" style="background-color:#71CFF2; color: black" class="btn btn-primary">Kontakt{{ info.kontakt }}</button>
+   <button @click="$emit('goToKomentar', info)" style="background-color:#71CFF2; color: black" class="btnKomentar">Komentar{{ info.komentar }}</button><br>
+   <button @click.stop ="kontaktClick" style="background-color:#71CFF2; color: black" class="btn btn-primary">Kontakt{{ info.kontakt }}</button>
+   
     
   </div>
 </div>
@@ -27,44 +28,31 @@ export default {
   },
   
   methods:{
-    goToKontakt(house){
-      if(!this.$store.getters.isAuthenticated){
-        this.$router.push({
-          name:'login'
-        });
-           
-    }else{ 
-      this.$router.push({
-        name: 'kontakt',
-        query: {
-          houseName: house.houseName,
-          houseId: house.houseId
-        }
-      });
-    }
-  }
-}
-};
+    kontaktClick(){
+      this.$emit('kontakt', this.info);
+    },
+    },
+  };
 
 </script>
 
 <style scoped>
 .card {
  display: flex;
- flex-wrap: wrap;
+
  flex-direction: column;
  box-shadow: 0 2px 5px;
- width: 100%;
+
  
 }
 
 .card-item{
   display: flex;
   flex-direction: column;
-  flex: 1 0 60%;
-  max-width: 800px;
+  flex: 1 0 300%;
+  max-width: 300px;
   max-height: 700px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   
   
 }
@@ -83,9 +71,15 @@ export default {
   display:flex;
   flex-direction: column;
   width: auto;
- 
- 
+  
 }
+.btnKomentar, .btn-primary{
+  height: 40px;
+  font-size: 17px;
+  border: none;
+  border-radius: 5px;
+}
+
 
 
 

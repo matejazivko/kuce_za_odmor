@@ -36,6 +36,11 @@ const routes = [
     name: 'kontakt',
     component: Kontakt,
    
+  },
+  {
+    path: '/slike',
+    name:'slike',
+    component: () => import ('@/views/Slike.vue')
   }
 ];
 

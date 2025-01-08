@@ -11,7 +11,7 @@
     
   </div>
     <form class="d-flex" role="search">
-      <input v-model="store.searchTerm" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+      <input v-model="store.searchTerm" class="form-control me-2" type="search" placeholder="Search" aria-label="Search" @input="updateSearchTerm">
     </form>
   </div>
 

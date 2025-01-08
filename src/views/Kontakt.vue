@@ -1,6 +1,6 @@
 <template>
     <div class="about">
-    <h1>Kontakt obrazac</h1>
+    <h2>Kontakt obrazac</h2>
     <div class="container">
     <div class="row">
     <div class="col-sm"></div>

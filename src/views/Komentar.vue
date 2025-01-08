@@ -1,13 +1,11 @@
 <template>
     <div class="about">
-        <h1>Komentari</h1>
+        <h2 align="left">Komentari</h2>
         <div class="container">
             <div class="row">
                 <div class="col-sm"></div>
                 <div class="col-sm">
-                    <div v-if="selectedHouseName"><br>
-                        <p>Odabrana kuća: {{ selectedHouseName }}</p>
-                    </div>
+                   
                     <form v-if="isAuthenticated" @submit.prevent="addComment">
                         <div class="mb-3">
                             <label for="exampleFormControlTextarea1" class="form-label">Vaša poruka</label>
@@ -21,9 +19,9 @@
                     <p v-if="errorMessage" class="text-danger">{{ errorMessage }}</p>
                     <div v-if="comments.length > 0">
                     <div v-for="(comment, index) in comments" :key = "index" class="comment-box">
-                            <p class="comment-text">{{ comment.text }}</p>
-                            <p>Kuća: {{ comment.houseName }}</p>
-                            <button class="btn-izmjeni" v-if="isAuthenticated && comment.userId === $store.state.userId" @click = "selectedCommentToEdit(comment)">Izmjeni</button>
+                        <p>Kuća: {{ comment.houseName }}</p>  
+                        <p class="comment-text">{{ comment.text }}</p>
+                         <button class="btn-izmjeni" v-if="isAuthenticated && comment.userId === $store.state.userId" @click = "selectedCommentToEdit(comment)">Izmjeni</button>
                         </div>
                     </div>
                 </div>

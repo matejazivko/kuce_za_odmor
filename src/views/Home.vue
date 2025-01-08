@@ -13,7 +13,8 @@
         </form>
 
         <div v-if="filteredCards.length > 0">
-          <house-card v-for="card in filteredCards" :key="card.houseId" :info="card" class="card-item" @click="goToKomentar(card)"/>
+          <house-card v-for="card in filteredCards" :key="card.houseId" :info="card" class="card-item" 
+          @goToSlike="goToSlike(card)" @goToKomentar="goToKomentar(card)" @kontakt="handleKontakt(card)" />
           
         </div>
       </div>
@@ -156,6 +157,14 @@
        }
      }
    },
+   goToSlike(house){
+  this.$router.push({
+    name:'slike',
+    query:{
+      houseId: house.houseId
+    }
+  });
+},
    goToKomentar(house){
     console.log("House data:", house);
       this.$router.push({
@@ -166,10 +175,23 @@
       },
    
     });
+  },
+  handleKontakt(house){
+    if(this.isAuthenticated){
+      this.$router.push({
+        name: 'kontakt',
+        query:{
+          houseId: house.houseId,
+        },
+      });
+    } else{
+      this.$router.push({name: 'login'});
+    }
   }
 }
-  
-};
+
+}
+
    
  
  
@@ -177,16 +199,16 @@
  <style scoped>
  .card-container {
    display: flex;
-   flex-wrap: wrap; 
-   justify-content: space-between; 
-   width: 100%;
-   height: 100%;
+   justify-content: flex-start;
+   flex-wrap:nowrap; 
    gap: 16px;
    
  }
  
  .card-item {
-  flex: 1 0 30%;
+  display:flex;
+  flex: 1 0 300px;
+  flex-direction: column;
   max-width: 450px;
   margin-bottom: 16px;
  }

@@ -31,7 +31,7 @@ mutations: {
   },
   setComments(state, comments){
      state.comments = comments;
-  }
+  },
 },
 actions:{
   setAuthenticated({commit}, status){
