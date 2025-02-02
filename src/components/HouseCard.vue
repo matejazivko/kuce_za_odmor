@@ -39,9 +39,11 @@ export default {
 <style scoped>
 .card {
  display: flex;
-
  flex-direction: column;
  box-shadow: 0 2px 5px;
+ width: 350px;
+ max-width: 350px;
+ margin-bottom: 16px;
 
  
 }
@@ -57,8 +59,9 @@ export default {
   
 }
 .card-img-top {
-  width: 400px;
-  height: 400px; 
+  width: 100%px;
+  height: 250px; 
+  object-fit: cover;
   
 }
 .card-text {

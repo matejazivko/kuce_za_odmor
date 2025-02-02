@@ -41,13 +41,17 @@ actions:{
     commit('setComments', fetchedComments);
   }
 },
+setSearchTerm(state, term){
+  state.searchTerm = term;
+},
 getters: {
     isAuthenticated: (state) => {
        return !!state.userId;
     },
     getUserId(state){
       return state.userId;
-    }
+    },
+    searchTerm: state => state.searchTerm,
   }
 });
 export default store;

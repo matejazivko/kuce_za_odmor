@@ -13,13 +13,15 @@
         </form>
 
         <div v-if="filteredCards.length > 0">
+          <div class ="card-container">
           <house-card v-for="card in filteredCards" :key="card.houseId" :info="card" class="card-item" 
           @goToSlike="goToSlike(card)" @goToKomentar="goToKomentar(card)" @kontakt="handleKontakt(card)" />
           
         </div>
       </div>
     </div> 
-  </div> 
+  </div>
+ </div>
 </template>
 
  <script>
@@ -47,6 +49,7 @@
      return{
       selectedHouseId: this.$route.query.houseId,
        filteredCards: [],
+       allCards: [],
        store,
        newImage: '',
        newImageTitle:'',
@@ -60,6 +63,14 @@
    computed:{
     isAuthenticated(){
       return this.$store.getters.isAuthenticated;
+    },
+    searchTerm(){
+      return this.$store.getters.searchTerm;
+    }
+   },
+   watch: {
+    searchTerm(newSearchTerm){
+      this.filterCards(newSearchTerm);
     }
    },
   mounted(){
@@ -75,6 +86,7 @@
     });
 
    this.getPosts();
+   this.filterCards(this.searchTerm);
   },
    methods:{
      toggleForm(){
@@ -87,13 +99,13 @@
      async getPosts(){
        try{
        const querySnapshot = await getDocs (collection(db,"posts"));
+         this.allCards=[];
          this.filteredCards=[];
          querySnapshot.forEach((doc)=>{
            const data = doc.data();
-           console.log("Fetched data from Firestore:", data);
          if (data.imageUrl && data.title && data.houseName) {
-          if (data.houseId === this.selectedHouseId){
-           this.filteredCards.push({
+          
+           const card = {
              url: data.imageUrl,
              title: data.title,
              houseName: data.houseName,
@@ -101,18 +113,38 @@
              komentar: data.komentar,
              kontakt: data.kontakt,
              
-           });
+           };
+           this.allCards.push(card);
+           if (data.houseId === this.selectedHouseId){
+            this.filteredCards.push(card);
+           }
          }
-        }
+        
        });
+       this.filterCards(this.searchTerm);
+      
        }
      catch(e){
          console.error(e);
      }
    
   },
-   
-     onFileChange(event){
+  updateSearchTerm(event){
+    const searchTerm = event.target.value;
+    this.$store.commit('setSearchTerm', searchTerm);
+    this.filterCards(searchTerm);
+  },
+  filterCards(searchTerm) {
+      if (!searchTerm) {
+        this.filteredCards = [...this.allCards];
+      } else {
+        this.filteredCards = this.allCards.filter(card => 
+          card.houseName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          card.title.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+    },
+    onFileChange(event){
        const file = event.target.files[0];
        if(file && file.type.startsWith('image/')){
          const reader = new FileReader();
@@ -199,9 +231,9 @@
  <style scoped>
  .card-container {
    display: flex;
-   justify-content: flex-start;
-   flex-wrap:nowrap; 
+   flex-wrap:wrap; 
    gap: 16px;
+   justify-content: flex-start;
    
  }
  
@@ -211,11 +243,16 @@
   flex-direction: column;
   max-width: 450px;
   margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px;
+  
  }
 
  .card-image{
-  width: 400px;
-  height: 400px;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
  }
  
  @media (max-width: 768px){

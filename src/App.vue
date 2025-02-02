@@ -11,7 +11,7 @@
     
   </div>
     <form class="d-flex" role="search">
-      <input v-model="store.searchTerm" class="form-control me-2" type="search" placeholder="Search" aria-label="Search" @input="updateSearchTerm">
+      <input v-model="$store.state.searchTerm" class="form-control me-2" type="search" placeholder="Search" aria-label="Search" @input="updateSearchTerm">
     </form>
   </div>
 
@@ -70,6 +70,11 @@ export default {
         console.error('Greška prilikom odjave: ', error.message);
       });
     }
+  },
+  updateSearchTerm(event){
+    const searchTerm = event.target.value;
+    this.$store.commit('setSearchTerm', event.target.value);
+    this.updateFilteredCards();
   },
   created(){
   onAuthStateChanged(auth, (user) => {
