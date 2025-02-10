@@ -32,7 +32,7 @@
  import HouseCard from '@/components/HouseCard.vue';
  import store from '@/store.js';
  import {db, onAuthStateChanged} from '@/firebase';
- import {addDoc, collection, getDocs, getFirestore} from 'firebase/firestore';
+ import {addDoc, collection, doc, getDocs, getFirestore} from 'firebase/firestore';
  import {getAuth} from 'firebase/auth';
  
  
@@ -115,7 +115,7 @@
              
            };
            this.allCards.push(card);
-           if (data.houseId === this.selectedHouseId){
+           if (this.selectedHouseId && data.houseId === this.selectedHouseId){
             this.filteredCards.push(card);
            }
          }
@@ -160,20 +160,26 @@
      async postNewImage(){
       if (this.isAuthenticated){
             if(this.imageSrc && this.newHouseName && this.newImageTitle){
+              let houseId = this.selectedHouseId ? this.selectedHouseId : null;
          const newCard={
            title: this.newImageTitle,
            imageUrl: this.imageSrc,
            houseName: this.newHouseName,
-           houseId: this.selectedHouseId,
+           houseId: houseId,
           
          };
+         try { 
+          const docRef = await addDoc(collection(db, "posts"), newCard);
+          if(!houseId){
+            houseId = docRef.id;
+          }
          
-         addDoc(collection(db,"posts"), newCard).then(() => {
+         
          this.filteredCards.push({
          title: newCard.title,
          url: newCard.imageUrl,
          houseName: newCard.houseName,
-         houseId: newCard.houseId,
+         houseId: houseId,
          komentar:"",
          kontakt: "",
          });
@@ -181,9 +187,9 @@
          this.newHouseName = "";
          this.showForm = false;
          this.imageSrc=""; 
-       }).catch ((error) =>{
+       }catch (error) {
          console.error("Greška u dodavanju slike", error);
-       });
+       };
      } else {
          alert ("Unesite sliku i opis kuće!");
        }

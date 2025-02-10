@@ -75,7 +75,7 @@ export default {
           this.errorMessage = ' ';
         })
         .catch((error)=>{
-          this.errorMessage = 'Greška prilikom slanja email-a za ponovo postavljane lozinke' + error.message;
+          this.errorMessage = 'Greška prilikom slanja email-a za ponovo postavljanje lozinke' + error.message;
           this.resetMessage = '';
           console.error ('Greška prilikom ponovog postavljanja lozinke', error);
         });
